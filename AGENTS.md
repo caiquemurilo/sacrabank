@@ -32,3 +32,4 @@ use the editor.
 ## SacraBank architecture
 - Demo data is seeded by the `seed_demo_data` trigger on auth signup; app tables are SELECT-only for users so the app and AI stay read-only.
 - Sacra AI streams from `src/routes/api/chat.ts` (logic in `src/lib/ai/chat.server.ts`); tools query with the caller's bearer token so RLS scopes data, and totals are computed in code (`src/lib/finance.ts`) so the model never invents values.
+- Pluggy (Open Finance, read-only) lives in `src/lib/pluggy/`: server functions with `requireSupabaseAuth` create the Connect Token (clientUserId = caller) and sync; sync checks the item's clientUserId, then writes via `supabaseAdmin` with upserts on `(user_id, external_id)` so users stay SELECT-only and re-syncs don't duplicate.

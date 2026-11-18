@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowDownRight, ArrowUpRight, CreditCard, Landmark, Link2, PiggyBank, MessageSquareText } from "lucide-react";
+import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { ArrowDownRight, ArrowUpRight, CreditCard, Landmark, Link2, Loader2, PiggyBank, MessageSquareText } from "lucide-react";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { getPluggyConnectToken, syncPluggyItem } from "@/lib/pluggy/pluggy.functions";
+import { openPluggyConnect } from "@/lib/pluggy/connect-widget";
 import { brl, consolidatedBalance, monthRange, summarize, type Account, type Transaction } from "@/lib/finance";
 
 const financeQuery = queryOptions({
@@ -54,9 +57,7 @@ function Dashboard() {
           <h1 className="text-4xl font-semibold md:text-5xl">{brl(total)}</h1>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => toast("Em breve: conexão com seu banco.")}>
-            <Link2 className="size-4" /> Conectar banco
-          </Button>
+          <ConnectBankButton />
           <Button asChild>
             <Link to="/assistente"><MessageSquareText className="size-4 text-gold" /> Perguntar ao Sacra AI</Link>
           </Button>
@@ -133,5 +134,37 @@ function Stat({ label, value, icon: Icon, tone }: { label: string; value: number
       </div>
       <p className={`mt-2 text-2xl font-semibold tabular-nums ${tone}`}>{brl(value)}</p>
     </div>
+  );
+}
+
+function ConnectBankButton() {
+  const queryClient = useQueryClient();
+  const [busy, setBusy] = useState(false);
+
+  async function connect() {
+    setBusy(true);
+    try {
+      const { connectToken } = await getPluggyConnectToken();
+      const itemId = await openPluggyConnect(connectToken);
+      if (!itemId) return;
+      const id = toast.loading("Sincronizando contas e transações…");
+      try {
+        const r = await syncPluggyItem({ data: { itemId } });
+        await queryClient.invalidateQueries({ queryKey: ["finance"] });
+        toast.success(`Banco conectado: ${r.accounts} conta(s) e ${r.transactions} transação(ões) importadas.`, { id });
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Não foi possível sincronizar.", { id });
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível conectar o banco.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Button variant="outline" onClick={connect} disabled={busy}>
+      {busy ? <Loader2 className="size-4 animate-spin" /> : <Link2 className="size-4" />} Conectar banco
+    </Button>
   );
 }

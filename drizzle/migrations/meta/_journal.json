@@ -8,6 +8,13 @@
       "when": 1794959414723,
       "tag": "0000_create_accounts_transactions",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794971191079,
+      "tag": "0001_pluggy_items_and_external_ids",
+      "breakpoints": true
     }
   ]
 }

@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           balance: number
           created_at: string
+          external_id: string | null
           id: string
           institution: string
           name: string
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           balance?: number
           created_at?: string
+          external_id?: string | null
           id?: string
           institution: string
           name: string
@@ -36,10 +38,38 @@ export type Database = {
         Update: {
           balance?: number
           created_at?: string
+          external_id?: string | null
           id?: string
           institution?: string
           name?: string
           type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pluggy_items: {
+        Row: {
+          connector_name: string | null
+          created_at: string
+          id: string
+          item_id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          connector_name?: string | null
+          created_at?: string
+          id?: string
+          item_id: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          connector_name?: string | null
+          created_at?: string
+          id?: string
+          item_id?: string
+          status?: string | null
           user_id?: string
         }
         Relationships: []
@@ -51,6 +81,7 @@ export type Database = {
           category: string
           created_at: string
           description: string
+          external_id: string | null
           id: string
           merchant: string | null
           occurred_on: string
@@ -62,6 +93,7 @@ export type Database = {
           category: string
           created_at?: string
           description: string
+          external_id?: string | null
           id?: string
           merchant?: string | null
           occurred_on: string
@@ -73,6 +105,7 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string
+          external_id?: string | null
           id?: string
           merchant?: string | null
           occurred_on?: string
