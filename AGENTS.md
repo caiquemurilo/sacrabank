@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## SacraBank architecture
+- Demo data is seeded by the `seed_demo_data` trigger on auth signup; app tables are SELECT-only for users so the app and AI stay read-only.
+- Sacra AI streams from `src/routes/api/chat.ts` (logic in `src/lib/ai/chat.server.ts`); tools query with the caller's bearer token so RLS scopes data, and totals are computed in code (`src/lib/finance.ts`) so the model never invents values.
